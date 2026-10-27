@@ -68,6 +68,7 @@ public final class Fuzz {
                 else if (ev == 6) { left = r.nextInt(c.total + 1); s.setProgress(left, 0); }
                 else if (ev == 7) s.setViewport(720 + r.nextInt(1500), 720 + r.nextInt(2000));
                 else if (ev == 8) s.setParallax(r.nextFloat());
+                else if (ev == 9) s.setNotice(r.nextBoolean() ? null : (r.nextBoolean() ? "New version available" : "x".repeat(r.nextInt(80))));
                 s.update(r.nextInt(50) == 0 ? 0.2f : 1f / 30f);
                 g.calls = 0; g.segs = 0; g.pts = 0;
                 s.draw(g);

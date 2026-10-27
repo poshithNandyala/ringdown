@@ -12,6 +12,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -102,6 +103,10 @@ public final class GuideActivity extends Activity {
         source(col, "Harkin et al. (2016). Does monitoring goal progress promote goal attainment? Psychological Bulletin.",
                 "https://doi.org/10.1037/bul0000025");
 
+        heading(col, "Privacy");
+        source(col, "Ringdown keeps your habit and settings on your phone. It has no account and doesn't "
+                + "track you. Read the privacy policy ›", SettingsActivity.PRIVACY_URL);
+
         TextView go = text("Got it", 16, 0xFF1C1406, medium);
         go.setGravity(Gravity.CENTER);
         GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFFFFE6AA, 0xFFFFC35C});
@@ -117,7 +122,11 @@ public final class GuideActivity extends Activity {
         LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
         glp.topMargin = dp(28);
         col.addView(go, glp);
-        setContentView(scroll);
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(SettingsActivity.BG);
+        root.addView(scroll, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        Edges.pad(root);
+        setContentView(root);
     }
 
     private int dp(float v) {

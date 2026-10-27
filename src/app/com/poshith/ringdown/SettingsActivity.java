@@ -1,5 +1,6 @@
 package com.poshith.ringdown;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Outline;
 import android.graphics.Typeface;
@@ -46,6 +48,8 @@ import android.widget.Toast;
 
 import com.ringdown.core.Countdown;
 import com.ringdown.core.Palette;
+import com.ringdown.core.RemoteConfig;
+import com.ringdown.core.RemoteRules;
 import com.ringdown.core.RingScene;
 import com.ringdown.core.SceneConfig;
 
@@ -53,13 +57,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 /** Launcher screen: live preview + every setting. Built in code (no XML layouts). */
 public final class SettingsActivity extends Activity {
     static final String REPO_URL = "https://github.com/poshithNandyala/ringdown";
+    static final String PRIVACY_URL = REPO_URL + "/blob/main/PRIVACY.md";
     private static final long DAY_MS = 86_400_000L;
+    private static final int REQ_NOTIFY = 7;
     static final int BG = 0xFF07080F, CARD = 0xFF0E1120, FIELD = 0xFF0A0D18, STROKE = 0xFF1C2236;
     static final int TXT = 0xFFF2F4F8, SUB = 0xFF8C95AA, GOLD = 0xFFFFD27A, DANGER = 0xFFFF8F87;
     private static final int[] PRESETS = {21, 30, 66, 90, 100, 365};
@@ -91,6 +98,17 @@ public final class SettingsActivity extends Activity {
     private final ArrayList<String> habitIds = new ArrayList<>();
     private boolean binding;
     private Typeface medium, regular;
+    private LinearLayout bannerBox, pagesBox;
+    private TextView pagesHeader;
+    private boolean waitForGuide;
+
+    /** Remote config changes (a check finished, a banner closed): redraw the banner and pages. */
+    private final SharedPreferences.OnSharedPreferenceChangeListener remoteListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+                    if (key == null || key.startsWith(Remote.PREFIX)) refreshRemote();
+                }
+            };
 
     @Override
     protected void onCreate(Bundle state) {
@@ -101,10 +119,15 @@ public final class SettingsActivity extends Activity {
         regular = Typeface.create("sans-serif", Typeface.NORMAL);
         getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(BG);
-        setContentView(buildUi());
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(BG);
+        root.addView(buildUi(), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        Edges.pad(root);
+        setContentView(root);
         bindControls();
         if (!prefs.getBoolean(Prefs.K_GUIDE, false)) {
             prefs.edit().putBoolean(Prefs.K_GUIDE, true).apply();
+            waitForGuide = true;
             startActivity(new Intent(this, GuideActivity.class));
         }
     }
@@ -116,6 +139,17 @@ public final class SettingsActivity extends Activity {
         refreshStatus();
         refreshSetButton();
         showDone();
+        prefs.registerOnSharedPreferenceChangeListener(remoteListener);
+        refreshRemote();
+        Remote.refresh(this, Remote.APP_MAX_AGE);
+        if (waitForGuide) waitForGuide = false;   // the guide is opening on top; ask after it closes
+        else maybeAskNotifications();
+    }
+
+    @Override
+    protected void onPause() {
+        prefs.unregisterOnSharedPreferenceChangeListener(remoteListener);
+        super.onPause();
     }
 
     // ================================================================== UI
@@ -143,6 +177,12 @@ public final class SettingsActivity extends Activity {
         TextView tag = text("Break a bad habit or build a good one. One ring a day.", 14, SUB, regular);
         tag.setPadding(0, dp(2), 0, 0);
         col.addView(tag);
+
+        // ---- banner from the remote config (update available, news); hidden when there's none
+        bannerBox = new LinearLayout(this);
+        bannerBox.setOrientation(LinearLayout.VERTICAL);
+        bannerBox.setVisibility(View.GONE);
+        col.addView(bannerBox, full(ViewGroup.LayoutParams.WRAP_CONTENT, 16));
 
         // ---- live preview, shaped like this phone's screen
         DisplayMetrics real = new DisplayMetrics();
@@ -375,6 +415,15 @@ public final class SettingsActivity extends Activity {
         ex.addView(switchRow("Battery saver", "Lighter animation and lower frame rate", Prefs.K_LOW, false));
         col.addView(ex, full(ViewGroup.LayoutParams.WRAP_CONTENT, 0));
 
+        // ---- extra pages from the remote config; hidden when there are none
+        pagesHeader = section("MORE");
+        pagesHeader.setVisibility(View.GONE);
+        col.addView(pagesHeader);
+        pagesBox = card();
+        pagesBox.setPadding(dp(16), dp(6), dp(16), dp(6));
+        pagesBox.setVisibility(View.GONE);
+        col.addView(pagesBox, full(ViewGroup.LayoutParams.WRAP_CONTENT, 0));
+
         restartBtn = button("", false);
         restartBtn.setTextColor(DANGER);
         restartBtn.setBackground(ripple(round(0x00000000, 0x55FF8F87, dp(16)), dp(16)));
@@ -385,15 +434,172 @@ public final class SettingsActivity extends Activity {
 
         TextView tip = text("Tip: set it on your lock screen too. The day's animation plays the first time you look at your phone after midnight. Double-tap the home screen to replay it.", 12.5f, SUB, regular);
         col.addView(tip, full(ViewGroup.LayoutParams.WRAP_CONTENT, 18));
-        TextView ver = text("Ringdown 1.2  ·  open source on GitHub", 12, 0x77FFFFFF, regular);
+        TextView ver = text("Ringdown " + Remote.versionName(this) + "  ·  open source on GitHub", 12, 0x77FFFFFF, regular);
         ver.setGravity(Gravity.CENTER);
-        ver.setPadding(0, dp(10), 0, dp(10));
+        ver.setPadding(0, dp(10), 0, dp(4));
         ver.setClickable(true);
         ver.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { openUrl(REPO_URL); }
         });
+        ver.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) { developerMenu(); return true; }
+        });
         col.addView(ver, full(ViewGroup.LayoutParams.WRAP_CONTENT, 12));
+        TextView privacy = text("Privacy policy", 12, 0x77FFFFFF, regular);
+        privacy.setGravity(Gravity.CENTER);
+        privacy.setPadding(0, dp(4), 0, dp(10));
+        privacy.setClickable(true);
+        privacy.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { openUrl(PRIVACY_URL); }
+        });
+        col.addView(privacy, full(ViewGroup.LayoutParams.WRAP_CONTENT, 0));
         return scroll;
+    }
+
+    // ================================================================== remote config
+
+    private void refreshRemote() {
+        if (bannerBox == null) return;
+        RemoteConfig c = Remote.config(prefs);
+        RemoteRules.Device d = Remote.device(this, prefs);
+        RemoteRules.Banner b = RemoteRules.banner(c, d, Remote.set(prefs, Remote.K_DISMISSED));
+        bannerBox.removeAllViews();
+        if (b == null) {
+            bannerBox.setVisibility(View.GONE);
+        } else {
+            bannerBox.addView(bannerView(b));
+            bannerBox.setVisibility(View.VISIBLE);
+        }
+        List<RemoteConfig.Page> pages = RemoteRules.pages(c, d);
+        pagesBox.removeAllViews();
+        for (int i = 0; i < pages.size(); i++) {
+            if (i > 0) {
+                View line = new View(this);
+                line.setBackgroundColor(STROKE);
+                pagesBox.addView(line, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, dp(1) / 2)));
+            }
+            pagesBox.addView(pageRow(pages.get(i)));
+        }
+        int vis = pages.isEmpty() ? View.GONE : View.VISIBLE;
+        pagesBox.setVisibility(vis);
+        pagesHeader.setVisibility(vis);
+    }
+
+    private View bannerView(final RemoteRules.Banner b) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(16), dp(14), dp(16), dp(14));
+        box.setBackground(round(0x16FFD27A, 0x66FFD27A, dp(20)));
+        if (b.title.length() > 0) box.addView(text(b.title, 16, TXT, medium));
+        if (b.text.length() > 0) {
+            TextView t = text(b.text, 13.5f, 0xFFC9CFDC, regular);
+            t.setLineSpacing(0, 1.2f);
+            t.setPadding(0, b.title.length() > 0 ? dp(4) : 0, 0, 0);
+            box.addView(t);
+        }
+        boolean hasAction = b.button.length() > 0 && b.url.length() > 0;
+        if (hasAction || b.dismissable) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            if (hasAction) {
+                TextView go = button(b.button, true);
+                go.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.5f);
+                go.setPadding(dp(18), 0, dp(18), 0);
+                go.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) { openUrl(b.url); }
+                });
+                row.addView(go, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40)));
+            }
+            if (b.dismissable) {
+                TextView later = text(b.update ? "Not now" : "Dismiss", 14, SUB, medium);
+                later.setGravity(Gravity.CENTER);
+                later.setPadding(dp(16), 0, dp(16), 0);
+                later.setBackground(ripple(round(0x00000000, 0, dp(14)), dp(14)));
+                later.setClickable(true);
+                later.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) { Remote.dismiss(prefs, b.key); }
+                });
+                LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40));
+                llp.leftMargin = hasAction ? dp(6) : 0;
+                row.addView(later, llp);
+            }
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rlp.topMargin = dp(12);
+            box.addView(row, rlp);
+        }
+        return box;
+    }
+
+    private View pageRow(final RemoteConfig.Page p) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(12), 0, dp(12));
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.addView(text(p.title, 15.5f, TXT, regular));
+        if (p.subtitle.length() > 0) {
+            TextView st = text(p.subtitle, 12.5f, SUB, regular);
+            st.setPadding(0, dp(2), 0, 0);
+            texts.addView(st);
+        }
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(text("›", 22, SUB, regular));
+        row.setClickable(true);
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (p.inBrowser) {
+                    openUrl(p.url);
+                    return;
+                }
+                Intent i = new Intent(SettingsActivity.this, WebPageActivity.class);
+                i.putExtra(WebPageActivity.EXTRA_URL, p.url);
+                i.putExtra(WebPageActivity.EXTRA_TITLE, p.title);
+                startActivity(i);
+            }
+        });
+        return row;
+    }
+
+    /** Android 13+ needs permission for notifications. Ask once, after the first-run guide. */
+    private void maybeAskNotifications() {
+        if (Build.VERSION.SDK_INT < 33 || prefs.getBoolean(Remote.K_ASKED, false)) return;
+        prefs.edit().putBoolean(Remote.K_ASKED, true).apply();
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
+        try {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIFY);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(code, permissions, results);
+        if (code == REQ_NOTIFY && results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
+            Remote.notifyDue(getApplicationContext(), prefs);
+        }
+    }
+
+    /** Long-press the version line: check the remote config now, or make this a tester phone. */
+    private void developerMenu() {
+        final boolean tester = prefs.getBoolean(Remote.K_TESTER, false);
+        String[] items = {"Check for news now", tester ? "Tester mode: ON (tap to turn off)" : "Tester mode: OFF (tap to turn on)"};
+        new AlertDialog.Builder(this)
+                .setTitle("Remote control")
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            prefs.edit().remove(Remote.K_TRY_AT).apply();
+                            Remote.refresh(SettingsActivity.this, 0L);
+                            Toast.makeText(SettingsActivity.this, "Checking…", Toast.LENGTH_SHORT).show();
+                        } else {
+                            prefs.edit().putBoolean(Remote.K_TESTER, !tester).apply();
+                            Toast.makeText(SettingsActivity.this, tester ? "Tester mode off" : "Tester mode on", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .show();
     }
 
     // ================================================================== binding
@@ -563,6 +769,7 @@ public final class SettingsActivity extends Activity {
         bindMode();
         refreshPreview();
         refreshStatus();
+        refreshRemote();   // messages can target break or build mode
     }
 
     private void pickHabit(Habits.Habit h) {

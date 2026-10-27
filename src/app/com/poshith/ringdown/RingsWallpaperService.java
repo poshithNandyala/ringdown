@@ -24,6 +24,7 @@ import android.view.SurfaceHolder;
 
 import com.ringdown.core.Countdown;
 import com.ringdown.core.Palette;
+import com.ringdown.core.RemoteRules;
 import com.ringdown.core.RingScene;
 import com.ringdown.core.SceneConfig;
 
@@ -84,6 +85,21 @@ public final class RingsWallpaperService extends WallpaperService {
             scene.setListener(this);
             setOffsetNotificationsEnabled(true);
             loadConfig();
+            loadNotice();
+        }
+
+        /** The optional line under the progress bar, as the remote config asks (e.g. an update). */
+        private void loadNotice() {
+            if (isPreview()) {
+                scene.setNotice(null);
+                return;
+            }
+            try {
+                scene.setNotice(RemoteRules.wallpaperNotice(Remote.config(prefs),
+                        Remote.device(RingsWallpaperService.this, prefs), Remote.set(prefs, Remote.K_DISMISSED)));
+            } catch (Throwable t) {
+                scene.setNotice(null);
+            }
         }
 
         @Override
@@ -170,6 +186,8 @@ public final class RingsWallpaperService extends WallpaperService {
                     handler.removeCallbacks(demo);
                     handler.postDelayed(demo, 1_400);
                 } else {
+                    loadNotice();
+                    Remote.refresh(RingsWallpaperService.this, Remote.maxAge(prefs));
                     long asked = prefs.getLong(Prefs.K_DEMO_AT, 0L);
                     if (asked > 0L) {
                         prefs.edit().putLong(Prefs.K_DEMO_AT, 0L).apply();
@@ -274,9 +292,15 @@ public final class RingsWallpaperService extends WallpaperService {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+            if (key != null && key.startsWith(Remote.PREFIX)) {   // remote config: only the notice can change
+                loadNotice();
+                if (visible) startLoop();
+                return;
+            }
             if (Prefs.K_SEEN.equals(key) || Prefs.K_DEMO_AT.equals(key) || Prefs.K_GUIDE.equals(key)
                     || Prefs.K_HABIT.equals(key)) return;
             loadConfig();
+            if (key == null || Prefs.K_MODE.equals(key)) loadNotice();   // messages can target a mode
             if (key == null || Prefs.K_TOTAL.equals(key) || Prefs.K_START.equals(key) || Prefs.K_MODE.equals(key)) {
                 long today = Countdown.today();
                 int left = Prefs.ringsLeft(sp, today);

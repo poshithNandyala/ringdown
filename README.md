@@ -6,7 +6,7 @@ You see your progress every time you look at your phone.
 
 <p align="center"><img src="docs/demo.gif" width="300" alt="A ring lifts off the orb, faces you and shatters; the count drops from 78 to 77"></p>
 
-<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.2)</a></b> · Android 8.0 or newer</p>
+<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.3)</a></b> · Android 8.0 or newer</p>
 
 ## Why rings?
 
@@ -51,6 +51,8 @@ loop as rings, one ring for each day.
 - Tap the home screen and the rings react; double-tap to replay today's animation.
 - "On my wallpaper" button plays the next day's animation on your real wallpaper right away.
 - Built-in "How it works" guide with the research above.
+- **Remote control:** update notices (in the app, on the wallpaper, as a notification), news and extra pages
+  are switched on from one file in this repo, without a new release. See [REMOTE.md](REMOTE.md).
 
 ## How to use
 
@@ -70,13 +72,16 @@ loop as rings, one ring for each day.
 No Gradle needed. Requires JDK 17+.
 
 ```bash
-./build.sh            # -> out/apk/Ringdown.apk
+./build.sh            # -> out/apk/Ringdown.apk (GitHub) and out/aab/Ringdown.aab (Google Play)
 ```
 
-`build.sh` finds the Android tools in this order: the env vars `SDK_JAR` / `AAPT2` / `R8_CP`, then
-`$ANDROID_HOME` (platform 35 + newest build-tools), then a local `buildtools/` folder. A signing key is
-created in `keystore/` on the first build. Keep it: Android only installs an update over an existing app
-if both are signed with the same key.
+`build.sh` finds the Android tools in this order: the env vars `SDK_JAR` / `AAPT2` / `R8_CP` /
+`BUNDLETOOL`, then `$ANDROID_HOME` (platform 36 + newest build-tools), then a local `buildtools/` folder
+(`bundletool.jar` from [google/bundletool](https://github.com/google/bundletool/releases)). A signing key
+and its password are created in `keystore/` on the first build. Keep both: Android only installs an update
+over an existing app if both are signed with the same key.
+
+Publishing on Google Play: [PLAYSTORE.md](PLAYSTORE.md). Privacy policy: [PRIVACY.md](PRIVACY.md).
 
 ### Project layout
 
@@ -84,8 +89,11 @@ if both are signed with the same key.
 | --- | --- |
 | `src/core` | The whole scene: 3D ring math, both modes, animations, particles, text. Pure Java, no Android. |
 | `src/app` | Android: the wallpaper service, settings screen, guide, and a Canvas renderer that draws all lines as one GPU mesh (`drawVertices`). |
-| `harness` | Desktop preview renderer (`Render`) and a fuzz test for the scene (`Fuzz`), used to check every frame before it ships. |
+| `harness` | Desktop preview renderer (`Render`), a fuzz test for the scene (`Fuzz`) and tests for the remote control (`RemoteTest`). |
 | `res`, `assets` | Icon, wallpaper metadata, bundled Roboto fonts. |
+| `remote/config.json` | The remote control file the app reads ([REMOTE.md](REMOTE.md)). |
+| `store` | Google Play listing text, icon, feature graphic and screenshots. |
+| `apk` | The latest APK for direct download. |
 
 ## Sources
 

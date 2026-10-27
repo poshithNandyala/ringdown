@@ -110,6 +110,8 @@ public final class RingScene {
     private String msgTitle = "", msgLine = "";
     private float msgT = -1f, msgDur = 5.5f;
     private float shownProg;
+    private String noticeShown = "", noticeNext = "";   // optional line under the progress bar (remote notice)
+    private float noticeA;
 
     private final float[] tapX = new float[6], tapY = new float[6], tapT = {1, 1, 1, 1, 1, 1};
     private int tapIdx;
@@ -154,6 +156,13 @@ public final class RingScene {
     // =====================================================================================
 
     public void setListener(Listener l) { listener = l; }
+
+    /** A short line shown under the progress bar (e.g. "New version available"); null or "" hides it. */
+    public void setNotice(String s) {
+        String t = s == null ? "" : s.trim().toUpperCase(java.util.Locale.ROOT);
+        if (t.length() > 42) t = t.substring(0, 42);
+        noticeNext = t;
+    }
 
     public Palette palette() { return pal; }
 
@@ -255,6 +264,7 @@ public final class RingScene {
         if (demoRestore > 0f || restoreT < 1f || left > targetLeft || tickFlash > 0.02f) return true;
         if (celebrateT >= 0f || glintT < 1f || spinBoost > 0.05f || todayGlow < 1f || freshT < 1f) return true;
         for (float t : tapT) if (t < 1f) return true;
+        if (!noticeShown.equals(noticeNext) || (noticeShown.length() > 0 && noticeA < 1f)) return true;
         return msgT >= 0f && (msgT < 0.6f || msgT > msgDur - 0.9f);
     }
 
@@ -331,6 +341,12 @@ public final class RingScene {
         freshT = Math.min(1f, freshT + dt / 2.4f);
         for (int i = 0; i < tapT.length; i++) if (tapT[i] < 1f) tapT[i] = Math.min(1f, tapT[i] + dt / 0.9f);
         shownProg += (progress() - shownProg) * Math.min(1f, dt * 2.4f);
+        if (!noticeShown.equals(noticeNext)) {                 // fade the old line out, then swap
+            noticeA = noticeShown.length() == 0 ? 0f : noticeA - dt / 0.4f;
+            if (noticeA <= 0f) { noticeA = 0f; noticeShown = noticeNext; }
+        } else if (noticeShown.length() > 0) {
+            noticeA = Math.min(1f, noticeA + dt / 0.8f);
+        }
 
         if (celebrateT >= 0f) {
             celebrateT += dt;
@@ -1595,6 +1611,13 @@ public final class RingScene {
             float a = 1f - glintT;
             g.glow(l + fw, barY + bh * 0.5f, 12f * u, pal.accent, 0.9f * a);
             g.dot(l + fw, barY + bh * 0.5f, 1.5f * u, WHITE, a, true);
+        }
+        if (noticeShown.length() > 0 && noticeA > 0.01f) {
+            float size = 8.4f * u * ts;
+            float ny = Math.min(barY + bh + 24f * u * ts, H - 36f * u);
+            float pulse = 0.8f + 0.2f * (float) Math.sin(time * 2.2);
+            g.glow(x, ny - size * 0.35f, size * 4.5f, pal.accent, 0.07f * noticeA * pulse);
+            g.text(noticeShown, x, ny, size, pal.accent, 0.92f * noticeA * pulse, Gfx.FONT_MEDIUM, 0.22f, Gfx.ALIGN_CENTER);
         }
     }
 

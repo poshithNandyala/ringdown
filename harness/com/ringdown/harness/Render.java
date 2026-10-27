@@ -47,6 +47,7 @@ public final class Render {
         scene.setConfig(c);
         scene.setViewport(w, h);
         scene.setProgress(left, startsIn);
+        if (a.containsKey("notice")) scene.setNotice(a.get("notice"));
 
         File dir = new File(out);
         if (!still) dir.mkdirs();

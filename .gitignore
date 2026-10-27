@@ -1,0 +1,7 @@
+# build output
+out/
+# signing key: never publish it (anyone with it could sign updates for this app)
+keystore/
+# local tool binaries (see README: Build from source)
+buildtools/*
+!buildtools/ApkSign.java

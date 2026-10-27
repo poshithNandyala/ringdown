@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ringdown</string>
+    <string name="wallpaper_desc">Your countdown in 3D rings. One ring breaks every midnight. Tap Settings to set the number of rings, the style and the colors.</string>
+</resources>

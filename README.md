@@ -6,7 +6,7 @@ You see your progress every time you look at your phone.
 
 <p align="center"><img src="docs/demo.gif" width="300" alt="A ring lifts off the orb, faces you and shatters; the count drops from 78 to 77"></p>
 
-<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.1)</a></b> · Android 8.0 or newer</p>
+<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.2)</a></b> · Android 8.0 or newer</p>
 
 ## Why rings?
 
@@ -16,9 +16,10 @@ end of these chunks, like brackets around the habit (Martiros, Burgess & Graybie
 loop as rings, one ring for each day.
 
 - **Breaking a habit: watch the loop fade.** All rings start lit. Every day you stay away from the habit, one
-  ring breaks. Pathways you stop using get weaker, and the brain can heal: in people who stayed off
-  methamphetamine for 12 to 17 months, dopamine transporters partly recovered (Volkow et al., 2001). The old
-  loop never vanishes completely, so cravings can still show up. That's normal. If you slip, restart.
+  ring breaks, and the loop in your brain gets weaker too: pathways you stop using fade. The brain recovers
+  faster than you'd think: when smokers quit, the extra nicotine receptors their brains had built up dropped
+  back to about non-smoker levels in 6 to 12 weeks (Cosgrove et al., 2009). A craving can still pop up now and
+  then. That's normal, and it passes. If you slip, restart and keep going.
 - **Building a habit: watch the loop form.** Rings start as a faint blueprint. Every day you show up, one ring
   gets built. In a UCL study, a daily habit took a median of 66 days to feel automatic (anywhere from 18 to
   254 days), and missing a single day didn't undo the progress (Lally et al., 2010).
@@ -92,8 +93,8 @@ if both are signed with the same key.
   world. *European Journal of Social Psychology*. [doi:10.1002/ejsp.674](https://doi.org/10.1002/ejsp.674)
 - Martiros, Burgess & Graybiel (2018). Inversely active striatal projection neurons and interneurons
   selectively delimit useful behavioral sequences. *Current Biology*. [PMC5820126](https://pmc.ncbi.nlm.nih.gov/articles/PMC5820126)
-- Volkow et al. (2001). Loss of dopamine transporters in methamphetamine abusers recovers with protracted
-  abstinence. *Journal of Neuroscience* 21(23). [doi:10.1523/JNEUROSCI.21-23-09414.2001](https://doi.org/10.1523/JNEUROSCI.21-23-09414.2001)
+- Cosgrove et al. (2009). β2-Nicotinic acetylcholine receptor availability during acute and prolonged
+  abstinence from tobacco smoking. *Archives of General Psychiatry* 66(6). [doi:10.1001/archgenpsychiatry.2009.41](https://doi.org/10.1001/archgenpsychiatry.2009.41)
 - Harkin et al. (2016). Does monitoring goal progress promote goal attainment? A meta-analysis of the
   experimental evidence. *Psychological Bulletin* 142(2). [doi:10.1037/bul0000025](https://doi.org/10.1037/bul0000025)
 

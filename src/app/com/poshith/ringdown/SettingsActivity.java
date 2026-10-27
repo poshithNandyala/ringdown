@@ -385,7 +385,7 @@ public final class SettingsActivity extends Activity {
 
         TextView tip = text("Tip: set it on your lock screen too. The day's animation plays the first time you look at your phone after midnight. Double-tap the home screen to replay it.", 12.5f, SUB, regular);
         col.addView(tip, full(ViewGroup.LayoutParams.WRAP_CONTENT, 18));
-        TextView ver = text("Ringdown 1.1  ·  open source on GitHub", 12, 0x77FFFFFF, regular);
+        TextView ver = text("Ringdown 1.2  ·  open source on GitHub", 12, 0x77FFFFFF, regular);
         ver.setGravity(Gravity.CENTER);
         ver.setPadding(0, dp(10), 0, dp(10));
         ver.setClickable(true);

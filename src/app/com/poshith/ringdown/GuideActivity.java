@@ -49,10 +49,11 @@ public final class GuideActivity extends Activity {
                 + "Ringdown shows that loop as rings, one ring for each day.");
 
         heading(col, "Breaking a habit: watch the loop fade");
-        para(col, "All the rings start lit. Every day you don't feed the old loop, one ring breaks. Pathways you "
-                + "stop using get weaker, and the brain can heal: in one study, people's dopamine system partly "
-                + "recovered after 12 to 17 months off methamphetamine. The old loop never vanishes completely, "
-                + "so cravings can still show up. That's normal. If you slip, restart and keep going.");
+        para(col, "All the rings start lit. Every day you don't feed the old loop, one ring breaks, and the loop "
+                + "in your brain gets weaker too: pathways you stop using fade. The brain recovers faster than "
+                + "you'd think. When smokers quit, the extra nicotine receptors their brains had built up dropped "
+                + "back to about non-smoker levels in 6 to 12 weeks. A craving can still pop up now and then. "
+                + "That's normal, and it passes. Every one you ride out is a win. If you slip, restart and keep going.");
 
         heading(col, "Building a habit: watch the loop form");
         para(col, "The rings start as a faint blueprint. Every day you show up, one ring gets built. In a UCL "
@@ -96,8 +97,8 @@ public final class GuideActivity extends Activity {
                 "https://doi.org/10.1002/ejsp.674");
         source(col, "Martiros, Burgess & Graybiel (2018). Inversely active striatal projection neurons and interneurons selectively delimit useful behavioral sequences. Current Biology.",
                 "https://pmc.ncbi.nlm.nih.gov/articles/PMC5820126");
-        source(col, "Volkow et al. (2001). Loss of dopamine transporters in methamphetamine abusers recovers with protracted abstinence. Journal of Neuroscience.",
-                "https://doi.org/10.1523/JNEUROSCI.21-23-09414.2001");
+        source(col, "Cosgrove et al. (2009). β2-Nicotinic acetylcholine receptor availability during acute and prolonged abstinence from tobacco smoking. Archives of General Psychiatry.",
+                "https://doi.org/10.1001/archgenpsychiatry.2009.41");
         source(col, "Harkin et al. (2016). Does monitoring goal progress promote goal attainment? Psychological Bulletin.",
                 "https://doi.org/10.1037/bul0000025");
 

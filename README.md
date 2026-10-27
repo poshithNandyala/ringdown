@@ -6,7 +6,7 @@ You see your progress every time you look at your phone.
 
 <p align="center"><img src="docs/demo.gif" width="300" alt="A ring lifts off the orb, faces you and shatters; the count drops from 78 to 77"></p>
 
-<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/releases/latest">⬇ Download the APK</a></b> · Android 8.0 or newer</p>
+<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.1)</a></b> · Android 8.0 or newer</p>
 
 ## Why rings?
 
@@ -53,7 +53,7 @@ loop as rings, one ring for each day.
 
 ## How to use
 
-1. Install the APK (allow "Install unknown apps" for your browser or file manager when Android asks).
+1. Download [`apk/Ringdown.apk`](https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk) on your phone and open it (allow "Install unknown apps" for your browser or file manager when Android asks).
 2. Open Ringdown, choose **Break a habit** or **Build a habit**, pick a habit or name your own.
 3. Set the number of days (1 ring = 1 day) and, if you're already on a streak, the days you've done.
 4. Pick a style and color, tap **Set as wallpaper** and choose **Home and lock screen**.

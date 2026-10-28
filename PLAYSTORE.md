@@ -62,7 +62,7 @@ Play).
 3. **Releases** → **Create new release**.
    - When asked about app signing, keep **Google-generated key** (Play App Signing). Your key then becomes
      the "upload key".
-   - Upload `Ringdown.aab`, release name `1.3`, release notes `First release on Google Play.`
+   - Upload `Ringdown.aab`, release name `1.3.1`, release notes `First release on Google Play.`
    - **Next** → **Save** → send the release for review.
 4. When it's approved, copy the **opt-in link** from the Testers tab and send it to your testers. Each one
    opens it, taps **Become a tester**, then installs Ringdown from Google Play.

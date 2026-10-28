@@ -6,7 +6,7 @@ You see your progress every time you look at your phone.
 
 <p align="center"><img src="docs/demo.gif" width="300" alt="A ring lifts off the orb, faces you and shatters; the count drops from 78 to 77"></p>
 
-<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.3)</a></b> · Android 8.0 or newer</p>
+<p align="center"><b><a href="https://github.com/poshithNandyala/ringdown/raw/main/apk/Ringdown.apk">⬇ Download the APK (v1.3.1)</a></b> · Android 8.0 or newer</p>
 
 ## Why rings?
 

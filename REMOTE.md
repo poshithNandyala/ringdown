@@ -25,7 +25,8 @@ Just fix it and commit again.
 
 ### Try it on your own phone first
 
-In the app, **long-press "Ringdown 1.3 · open source on GitHub"** at the bottom of the screen:
+In the app, **long-press the version line** at the bottom of the screen ("Ringdown 1.3.1 · open source on
+GitHub"):
 
 - **Check for news now** fetches the file right away (GitHub can take up to 5 minutes to serve a new
   version).

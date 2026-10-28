@@ -138,12 +138,12 @@ public final class RemoteTest {
         RemoteConfig c = RemoteConfig.parse(text);
         check(c != null, "remote/config.json is valid");
         if (c == null) return;
-        RemoteRules.Device d = device(4, "2026-10-28", true);
+        RemoteRules.Device d = device(c.update.versionCode, "2026-10-28", true);   // the latest release
         Set<String> none = new HashSet<>();
-        check(RemoteRules.banner(c, d, none) == null, "default config: no banner on 1.3");
-        check(RemoteRules.wallpaperNotice(c, d, none) == null, "default config: nothing on the wallpaper");
-        check(RemoteRules.notifications(c, d, none).isEmpty(), "default config: no notifications");
-        check(RemoteRules.pages(c, d).isEmpty(), "default config: no extra pages");
+        check(RemoteRules.banner(c, d, none) == null, "repo config: no banner on the latest version");
+        check(RemoteRules.wallpaperNotice(c, d, none) == null, "repo config: nothing on the wallpaper");
+        check(RemoteRules.notifications(c, d, none).isEmpty(), "repo config: no notifications");
+        check(RemoteRules.pages(c, d).isEmpty(), "repo config: no extra pages");
     }
 
     static void updates() {

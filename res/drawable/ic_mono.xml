@@ -1,22 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Themed icon (Android 13+): the Ringdown ring as a single-colour silhouette. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <group android:rotation="-28" android:pivotX="54" android:pivotY="54">
-        <path android:strokeColor="#FFFFFFFF" android:strokeWidth="2.2" android:fillColor="#00000000"
-            android:pathData="M32,54a22,8.5 0 1,0 44,0a22,8.5 0 1,0 -44,0" />
-    </group>
-    <group android:rotation="32" android:pivotX="54" android:pivotY="54">
-        <path android:strokeColor="#FFFFFFFF" android:strokeWidth="2.2" android:fillColor="#00000000"
-            android:pathData="M33,54a21,8 0 1,0 42,0a21,8 0 1,0 -42,0" />
-    </group>
-    <group android:rotation="90" android:pivotX="54" android:pivotY="54">
-        <path android:strokeColor="#FFFFFFFF" android:strokeWidth="2" android:fillColor="#00000000"
-            android:pathData="M35,54a19,7 0 1,0 38,0a19,7 0 1,0 -38,0" />
-    </group>
-    <path android:fillColor="#FFFFFFFF" android:pathData="M54,54m-3.4,0a3.4,3.4 0 1,1 6.8,0a3.4,3.4 0 1,1 -6.8,0" />
-    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="2.8" android:strokeLineCap="round" android:fillColor="#00000000"
-        android:pathData="M77.38,40.5A27,27 0 1,1 67.5,30.62" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M75.78,32.22m-1.9,0a1.9,1.9 0 1,1 3.8,0a1.9,1.9 0 1,1 -3.8,0" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M79.89,35.18m-1.2,0a1.2,1.2 0 1,1 2.4,0a1.2,1.2 0 1,1 -2.4,0" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M72.36,27.79m-1.0,0a1.0,1.0 0 1,1 2.0,0a1.0,1.0 0 1,1 -2.0,0" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="8.4" android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M75.57,43.48 A24,24 0 1,1 54,30" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M57.37,30.13 a1.7,1.7 0 1,0 3.4,0 a1.7,1.7 0 1,0 -3.4,0 Z M61.84,27.9 a1.15,1.15 0 1,0 2.3,0 a1.15,1.15 0 1,0 -2.3,0 Z M66.04,19.63 Q66.52,22.15 69.04,22.63 Q66.52,23.11 66.04,25.63 Q65.56,23.11 63.04,22.63 Q65.56,22.15 66.04,19.63 Z" />
 </vector>

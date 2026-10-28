@@ -56,7 +56,7 @@ First release on Google Play.
 | --- | --- |
 | App icon (512 × 512) | `store/icon-512.png` |
 | Feature graphic (1024 × 500) | `store/feature-graphic.png` |
-| Phone screenshots (1080 × 1920) | `store/screenshots/0-quit-anything.png` (put it first), then `1-break-orb.png` … `6-build-orb.png` |
+| Phone screenshots (1080 × 1920) | `store/screenshots/0a-no-porn.png` and `0b-no-drugs.png` first, then `1-break-orb.png`, `3-reward.png`, `4-build-grid.png`, `5-break-tunnel.png`, `6-build-orb.png` (`2-daily-moment.png` is a spare) |
 
 ## Other listing fields
 

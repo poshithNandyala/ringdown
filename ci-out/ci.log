@@ -1,0 +1,75 @@
++ SDKM=
++ for c in "${ANDROID_HOME:-}/cmdline-tools/latest/bin/sdkmanager" "${ANDROID_SDK_ROOT:-}/cmdline-tools/latest/bin/sdkmanager"
++ '[' -x /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager ']'
++ SDKM=/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager
++ break
++ '[' -z /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager ']'
++++ dirname /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager
+++ cd /usr/local/lib/android/sdk/cmdline-tools/latest/bin/../../..
+++ pwd
++ export ANDROID_HOME=/usr/local/lib/android/sdk
++ ANDROID_HOME=/usr/local/lib/android/sdk
++ set +o pipefail
++ yes
++ /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --licenses
+yes: standard output: Broken pipe
++ set -o pipefail
++ /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/usr/local/lib/android/sdk --install 'platforms;android-36' 'build-tools;36.0.0'
++ ls /usr/local/lib/android/sdk/platforms /usr/local/lib/android/sdk/build-tools
+/usr/local/lib/android/sdk/build-tools:
+34.0.0
+35.0.0
+35.0.1
+36.0.0
+36.1.0
+37.0.0
+
+/usr/local/lib/android/sdk/platforms:
+android-34
+android-34-ext10
+android-34-ext11
+android-34-ext12
+android-34-ext8
+android-35
+android-35-ext14
+android-35-ext15
+android-36
+android-36-ext18
+android-36-ext19
+android-36.1
+android-37.0
+android-37.1
+android-37.2
+android-37.2-beta1
+android-37.2-beta2
+android-37.2-beta3
++ curl -fsSL -o buildtools/bundletool.jar https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
++ mkdir -p out/h
+++ find src/core harness -name '*.java'
++ javac -proc:none -encoding UTF-8 -d out/h src/core/com/ringdown/core/Viewport.java src/core/com/ringdown/core/RingScene.java src/core/com/ringdown/core/Ribbon.java src/core/com/ringdown/core/Particles.java src/core/com/ringdown/core/RemoteConfig.java src/core/com/ringdown/core/Gfx.java src/core/com/ringdown/core/Json.java src/core/com/ringdown/core/SceneConfig.java src/core/com/ringdown/core/Lines.java src/core/com/ringdown/core/Countdown.java src/core/com/ringdown/core/Palette.java src/core/com/ringdown/core/RemoteRules.java harness/com/ringdown/harness/ViewportTest.java harness/com/ringdown/harness/Fuzz.java harness/com/ringdown/harness/RemoteTest.java harness/com/ringdown/harness/Render.java harness/com/ringdown/harness/J2DGfx.java
++ java -cp out/h com.ringdown.harness.ViewportTest
+randomized: 177915 same as 1.3.1, 129917 sideways cases fixed, 47998 square-ish no worse
+13 passed, 0 failed
++ java -cp out/h com.ringdown.harness.RemoteTest remote/config.json REMOTE.md
++ tail -1
+92 passed, 0 failed
++ ./build.sh
+creating a new signing key in keystore/ (back it up: every update must be signed with it)
+Generating 4,096 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 36,500 days
+	for: CN=Ringdown
+[1/8] compiling resources
+[2/8] linking resources
+[3/8] compiling Java
+[4/8] dexing
+[5/8] packaging and signing the APK (v1+v2+v3)
+signed -> out/apk/Ringdown.apk
+verified=true v1=false v2=true v3=true
+[6/8] linking resources for the bundle
+[7/8] building the bundle
+[8/8] signing the bundle
+-rw-r--r-- 1 runner runner 738320 Nov 17 12:49 out/aab/Ringdown.aab
+-rw-r--r-- 1 runner runner 747570 Nov 17 12:49 out/apk/Ringdown.apk
++ java -jar buildtools/bundletool.jar dump manifest --bundle out/aab/Ringdown.aab
++ grep -E 'versionCode|versionName'
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" android:versionCode="6" android:versionName="1.3.2" package="com.poshith.ringdown" platformBuildVersionCode="36" platformBuildVersionName="16">
++ cp out/aab/Ringdown.aab ci-out/Ringdown-1.3.2-ci.aab

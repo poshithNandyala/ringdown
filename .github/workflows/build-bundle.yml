@@ -39,10 +39,7 @@ jobs:
           set -o pipefail
           "$SDKM" --sdk_root="$ANDROID_HOME" --install "platforms;android-36" "build-tools;36.0.0" > /dev/null
           ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
-          url=$(curl -fsSL -H "Authorization: Bearer ${{ github.token }}" https://api.github.com/repos/google/bundletool/releases/latest \
-            | jq -r '.assets[] | select(.name | startswith("bundletool-all")) | .browser_download_url' | head -1)
-          echo "bundletool: $url"
-          curl -fsSL -o buildtools/bundletool.jar "$url"
+          curl -fsSL -o buildtools/bundletool.jar https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
           mkdir -p out/h
           javac -proc:none -encoding UTF-8 -d out/h $(find src/core harness -name '*.java')
           java -cp out/h com.ringdown.harness.ViewportTest
@@ -56,6 +53,11 @@ jobs:
         run: |
           mkdir -p ci-out
           echo "${{ job.status }}" > ci-out/status.txt
+          # The end of the log as an annotation, readable through the Checks API.
+          if [ -f ci-out/ci.log ]; then
+            msg=$(tail -40 ci-out/ci.log | sed -e 's/%/%25/g' -e 's/\r/%0D/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=ci-log::$msg"
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f ci-out

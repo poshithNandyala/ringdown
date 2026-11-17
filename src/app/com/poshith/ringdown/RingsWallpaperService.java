@@ -27,6 +27,7 @@ import com.ringdown.core.Palette;
 import com.ringdown.core.RemoteRules;
 import com.ringdown.core.RingScene;
 import com.ringdown.core.SceneConfig;
+import com.ringdown.core.Viewport;
 
 /**
  * The live wallpaper. Each time it becomes visible it checks the calendar; if midnight has
@@ -177,6 +178,7 @@ public final class RingsWallpaperService extends WallpaperService {
         public void onVisibilityChanged(boolean v) {
             visible = v;
             if (v) {
+                updateViewport(false);   // the screen may have turned while the wallpaper was hidden
                 if (powerSave() != lowPower && !prefs.getBoolean(Prefs.K_LOW, false) && Build.VERSION.SDK_INT >= 29) loadConfig();
                 syncDay(true);
                 lastFrame = 0;
@@ -215,7 +217,7 @@ public final class RingsWallpaperService extends WallpaperService {
             surfaceReady = true;
             width = w;
             height = h;
-            updateViewport();
+            updateViewport(true);
             if (!synced) showLastSeen();
             drawFrame(System.nanoTime());
         }
@@ -223,9 +225,11 @@ public final class RingsWallpaperService extends WallpaperService {
         /**
          * Some launchers make the wallpaper surface wider than the screen and scroll it with
          * the home screen pages. Lay the scene out for the visible screen only, and follow the
-         * scroll offset when drawing, so it always sits centered on screen.
+         * scroll offset when drawing, so it always sits centered on screen. Viewport also copes
+         * with Android reporting the screen size the other way round (landscape for portrait).
          */
-        private void updateViewport() {
+        private void updateViewport(boolean force) {
+            if (width <= 0 || height <= 0) return;
             int sw = 0, sh = 0;
             try {
                 DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
@@ -238,8 +242,10 @@ public final class RingsWallpaperService extends WallpaperService {
                 }
             } catch (Throwable ignored) {
             }
-            viewW = (sw > 0 && width > sw * 1.05f) ? sw : width;
-            viewH = (sh > 0 && height > sh * 1.05f) ? sh : height;
+            int[] v = Viewport.visible(width, height, sw, sh);
+            if (!force && v[0] == viewW && v[1] == viewH) return;
+            viewW = v[0];
+            viewH = v[1];
             scene.setViewport(viewW, viewH);
         }
 

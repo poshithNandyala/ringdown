@@ -16,8 +16,8 @@ cd "$(dirname "$0")"
 
 MIN=26
 TARGET=36
-VERSION_CODE=5
-VERSION_NAME=1.3.1
+VERSION_CODE=6
+VERSION_NAME=1.3.2
 OUT=out/apk
 AAB=out/aab
 

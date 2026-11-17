@@ -1,48 +1,61 @@
 name: Build the Play bundle
-# Builds out/aab/Ringdown.aab with a throwaway key. The bundle is re-signed with the real
-# upload key outside CI (the key never goes to GitHub).
+# Builds out/aab/Ringdown.aab, signed here with a throwaway key. The bundle is re-signed with
+# the real upload key outside CI, so the key never goes to GitHub.
 on:
   push:
     branches: [build-1.3.2]
 permissions:
   contents: write
-defaults:
-  run:
-    shell: bash
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android tools
+      - name: Build (log saved to ci-out/ci.log)
+        shell: bash
         run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          mkdir -p ci-out
+          exec > >(tee -a ci-out/ci.log) 2>&1
+          set -euxo pipefail
+          SDKM=""
+          for c in "${ANDROID_HOME:-}/cmdline-tools/latest/bin/sdkmanager" "${ANDROID_SDK_ROOT:-}/cmdline-tools/latest/bin/sdkmanager"; do
+            if [ -x "$c" ]; then SDKM="$c"; break; fi
+          done
+          if [ -z "$SDKM" ]; then
+            export ANDROID_HOME="$HOME/android-sdk"
+            mkdir -p "$ANDROID_HOME/cmdline-tools"
+            curl -fsSL -o /tmp/clt.zip https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
+            unzip -q /tmp/clt.zip -d "$ANDROID_HOME/cmdline-tools"
+            mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          export ANDROID_HOME="$(cd "$(dirname "$SDKM")/../../.." && pwd)"
+          set +o pipefail
+          yes | "$SDKM" --sdk_root="$ANDROID_HOME" --licenses > /dev/null || true
+          set -o pipefail
+          "$SDKM" --sdk_root="$ANDROID_HOME" --install "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
           url=$(curl -fsSL -H "Authorization: Bearer ${{ github.token }}" https://api.github.com/repos/google/bundletool/releases/latest \
             | jq -r '.assets[] | select(.name | startswith("bundletool-all")) | .browser_download_url' | head -1)
           echo "bundletool: $url"
           curl -fsSL -o buildtools/bundletool.jar "$url"
-      - name: Tests
-        run: |
           mkdir -p out/h
           javac -proc:none -encoding UTF-8 -d out/h $(find src/core harness -name '*.java')
-          java -cp out/h com.ringdown.harness.ViewportTest | tee tests.log
-          java -cp out/h com.ringdown.harness.RemoteTest remote/config.json REMOTE.md | tail -1 | tee -a tests.log
-      - name: Build
-        run: ./build.sh 2>&1 | tee build.log
-      - name: Check the bundle
-        run: |
-          java -jar buildtools/bundletool.jar dump manifest --bundle out/aab/Ringdown.aab > manifest.txt
-          grep -E 'versionCode|versionName' manifest.txt
+          java -cp out/h com.ringdown.harness.ViewportTest
+          java -cp out/h com.ringdown.harness.RemoteTest remote/config.json REMOTE.md | tail -1
+          ./build.sh
+          java -jar buildtools/bundletool.jar dump manifest --bundle out/aab/Ringdown.aab | grep -E 'versionCode|versionName'
+          cp out/aab/Ringdown.aab ci-out/Ringdown-1.3.2-ci.aab
       - name: Put the output on this branch
         if: always()
+        shell: bash
         run: |
           mkdir -p ci-out
-          cp tests.log build.log manifest.txt ci-out/ 2>/dev/null || true
-          if [ -f out/aab/Ringdown.aab ]; then cp out/aab/Ringdown.aab ci-out/Ringdown-1.3.2-ci.aab; fi
+          echo "${{ job.status }}" > ci-out/status.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f ci-out
